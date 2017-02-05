@@ -1,0 +1,16 @@
+#set of states
+1,2,3,4
+#alphabet
+a,b
+#transitions
+1,a,1
+1,a,2
+1,b,1
+2,b,3
+3,a,4
+4,a,4
+4,b,4
+#start state
+1
+#set of accept states
+4
