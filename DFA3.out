@@ -1,0 +1,18 @@
+States:
+12,3,4,52
+Start state:
+12
+Final states
+12,5
+Transitions:
+12,a,3
+12,b,12
+3,a,4
+3,b,
+4,a,
+4,b,52
+52,a,3
+52,b,52
+,a,
+,b,
+

@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -12,10 +14,11 @@ public class NFA_DFA_CONVERSION
 	static NFA input_nfa = new NFA();
 	static ArrayList<String> dfa_states = new ArrayList<String>();
 	static DFA output_dfa = new DFA();
+	static String file_name = "NFA3";
 
 	public static void construct_NFA() throws IOException
 	{
-		FileReader fr = new FileReader("NFA3.in");
+		FileReader fr = new FileReader(file_name + ".in");
 		BufferedReader br = new BufferedReader(fr);
 		String currentLine;
 		while ((currentLine = br.readLine()) != null)
@@ -35,8 +38,8 @@ public class NFA_DFA_CONVERSION
 				while (!(temp = br.readLine()).equals("#start state"))
 				{
 					String[] tempArray = temp.split(",");
-					Transaction tempTrans = new Transaction(tempArray[0], tempArray[1], tempArray[2]);
-					input_nfa.transactions.add(tempTrans);
+					Transition tempTrans = new Transition(tempArray[0], tempArray[1], tempArray[2]);
+					input_nfa.transitions.add(tempTrans);
 				}
 
 				input_nfa.start_state = br.readLine();
@@ -55,15 +58,15 @@ public class NFA_DFA_CONVERSION
 	{
 		String temp_res = "";
 		boolean has_epsilon = false;
-		for (int i = 0; i < input_nfa.transactions.size(); i++)
+		for (int i = 0; i < input_nfa.transitions.size(); i++)
 		{
-			if (x.equals(input_nfa.transactions.get(i).start) && input_nfa.transactions.get(i).operator.equals("!"))
+			if (x.equals(input_nfa.transitions.get(i).start) && input_nfa.transitions.get(i).operator.equals("!"))
 			{
 				has_epsilon = true;
-				if (!temp_res.contains(input_nfa.transactions.get(i).end))
+				if (!temp_res.contains(input_nfa.transitions.get(i).end))
 				{
-					temp_res += input_nfa.transactions.get(i).end + "|";
-					temp_res += get_all_epsilons(input_nfa.transactions.get(i).end);
+					temp_res += input_nfa.transitions.get(i).end + "|";
+					temp_res += get_all_epsilons(input_nfa.transitions.get(i).end);
 				}
 
 			}
@@ -79,24 +82,9 @@ public class NFA_DFA_CONVERSION
 
 	public static void DFA_start_state()
 	{
-		System.out.println(">>>>>>>>>>" + get_all_epsilons(input_nfa.start_state));
-		// boolean has_epsilon = false;
-		// String epsilon_res = "";
-		// for (int i = 0; i < input_nfa.transactions.size(); i++)
-		// {
-		// if (input_nfa.start_state.equals(input_nfa.transactions.get(i).start)
-		// && input_nfa.transactions.get(i).operator.equals("!"))
-		// {
-		// has_epsilon = true;
-		// if (!epsilon_res.contains(input_nfa.transactions.get(i).end))
-		// {
-		// epsilon_res += input_nfa.transactions.get(i).end + "|";
-		// }
-		//
-		// }
-		// }
-		// System.out.println(has_epsilon);
 		String epsilon_res = get_all_epsilons(input_nfa.start_state);
+		// TODO
+		output_dfa.start_state = input_nfa.start_state + epsilon_res;
 		if (!epsilon_res.equals(""))
 		{
 			dfa_states.add(input_nfa.start_state + "|" + epsilon_res);
@@ -105,12 +93,12 @@ public class NFA_DFA_CONVERSION
 			for (int i = 0; i < input_nfa.alphabet.size(); i++)
 			{
 				String next_state = "";
-				for (int j = 0; j < input_nfa.transactions.size(); j++)
+				for (int j = 0; j < input_nfa.transitions.size(); j++)
 				{
-					if (input_nfa.start_state.equals(input_nfa.transactions.get(j).start)
-							&& input_nfa.alphabet.get(i).equals(input_nfa.transactions.get(j).operator))
+					if (input_nfa.start_state.equals(input_nfa.transitions.get(j).start)
+							&& input_nfa.alphabet.get(i).equals(input_nfa.transitions.get(j).operator))
 					{
-						next_state += input_nfa.transactions.get(j).end + "|";
+						next_state += input_nfa.transitions.get(j).end + "|";
 
 					}
 				}
@@ -128,8 +116,12 @@ public class NFA_DFA_CONVERSION
 	{
 		// Start state
 		DFA_start_state();
+		// TODO
+		// output_dfa.start_state = dfa_states.get(0);
 		for (int i = 0; i < dfa_states.size(); i++)
 		{
+			// System.out.println(dfa_states.size());
+			// System.out.println(">>>>>>>>>>>" + dfa_states.get(i));
 
 			// System.out.println("?????????" + dfa_states.size());
 			// System.out.println("COUNTER: " + i);
@@ -146,23 +138,22 @@ public class NFA_DFA_CONVERSION
 				String next_state = "";
 				for (int j = 0; j < set_elements.length; j++)
 				{
-					for (int k = 0; k < input_nfa.transactions.size(); k++)
+					for (int k = 0; k < input_nfa.transitions.size(); k++)
 					{
 						// System.out.println(set_elements[j]);
 						// System.out.println(input_nfa.transactions.get(k).start);
 						// System.out.println(input_nfa.alphabet.get(j2));
 						// System.out.println(input_nfa.transactions.get(k).operator);
 						// System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-						if (set_elements[j].equals(input_nfa.transactions.get(k).start)
-								&& input_nfa.alphabet.get(j2).equals(input_nfa.transactions.get(k).operator))
+						if (set_elements[j].equals(input_nfa.transitions.get(k).start)
+								&& input_nfa.alphabet.get(j2).equals(input_nfa.transitions.get(k).operator))
 						{
-							if (!next_state.contains(input_nfa.transactions.get(k).end))
+							if (!next_state.contains(input_nfa.transitions.get(k).end))
 							{
-								next_state += input_nfa.transactions.get(k).end + "|";
-								next_state += get_all_epsilons(input_nfa.transactions.get(k).end);
+								next_state += input_nfa.transitions.get(k).end + "|";
+								next_state += get_all_epsilons(input_nfa.transitions.get(k).end);
 							}
 
-							// System.out.println("TRUE ==========>");
 						}
 					}
 
@@ -177,6 +168,60 @@ public class NFA_DFA_CONVERSION
 			}
 		}
 		set_dfa_accept_states();
+	}
+
+	public static void check_for_reject_state()
+	{
+		boolean has_reject_state = false;
+		A: for (int i = 0; i < output_dfa.transitions.size(); i++)
+		{
+			if (output_dfa.transitions.get(i).end.matches("\\s*"))
+			{
+				has_reject_state = true;
+				break A;
+			}
+		}
+
+		if (has_reject_state)
+		{
+			dfa_states.add("");
+			for (int i = 0; i < input_nfa.alphabet.size(); i++)
+			{
+				output_dfa.transitions.add(new Transition("", input_nfa.alphabet.get(i), ""));
+			}
+		}
+		construct_dfa_obj();
+	}
+
+	public static void construct_dfa_obj()
+	{
+		output_dfa.states = dfa_states;
+		create_output_file();
+	}
+
+	public static void create_output_file()
+	{
+		try
+		{
+			String output_file = file_name.replaceAll("\\D+", "");
+			System.out.println(output_file);
+			PrintWriter fw = new PrintWriter(new FileWriter("DFA" + output_file + ".out"));
+			fw.println("States:");
+			fw.print(output_dfa.states_toString());
+			fw.println();
+			fw.println("Start state:");
+			fw.println(output_dfa.start_states_toString());
+			fw.println("Final states");
+			fw.println(output_dfa.accept_states_toString());
+			fw.println("Transitions:");
+			fw.println(output_dfa.transitions_toString());
+
+			fw.close();
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void set_dfa_accept_states()
@@ -211,23 +256,26 @@ public class NFA_DFA_CONVERSION
 				String trans_res = "";
 				for (int k = 0; k < set_elements.length; k++)
 				{
-					for (int k2 = 0; k2 < input_nfa.transactions.size(); k2++)
+					for (int k2 = 0; k2 < input_nfa.transitions.size(); k2++)
 					{
-						if (set_elements[k].equals(input_nfa.transactions.get(k2).start)
-								&& input_nfa.alphabet.get(j).equals(input_nfa.transactions.get(k2).operator))
+						if (set_elements[k].equals(input_nfa.transitions.get(k2).start)
+								&& input_nfa.alphabet.get(j).equals(input_nfa.transitions.get(k2).operator))
 						{
-							if (!trans_res.contains(input_nfa.transactions.get(k2).end))
+							if (!trans_res.contains(input_nfa.transitions.get(k2).end))
 							{
-								trans_res += input_nfa.transactions.get(k2).end + "|";
+								trans_res += input_nfa.transitions.get(k2).end + "|";
+								// TODO NEW
+								trans_res += get_all_epsilons(input_nfa.transitions.get(k2).end);
 							}
 
 						}
 					}
 				}
-				Transaction temp_trans = new Transaction(dfa_states.get(i), input_nfa.alphabet.get(j), trans_res);
-				output_dfa.transactions.add(temp_trans);
+				Transition temp_trans = new Transition(dfa_states.get(i), input_nfa.alphabet.get(j), trans_res);
+				output_dfa.transitions.add(temp_trans);
 			}
 		}
+		check_for_reject_state();
 	}
 
 	public static void main(String[] args) throws IOException
@@ -243,9 +291,9 @@ public class NFA_DFA_CONVERSION
 		// System.out.println(output_dfa.accept_states.get(i));
 		// }
 		System.out.println("TRANSACTIONS");
-		for (int i = 0; i < output_dfa.transactions.size(); i++)
+		for (int i = 0; i < output_dfa.transitions.size(); i++)
 		{
-			System.out.println(output_dfa.transactions.get(i));
+			System.out.println(output_dfa.transitions.get(i));
 		}
 	}
 

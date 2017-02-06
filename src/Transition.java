@@ -1,11 +1,11 @@
 
-public class Transaction
+public class Transition
 {
 	String start;
 	String operator;
 	String end;
 
-	public Transaction(String start, String operator, String end)
+	public Transition(String start, String operator, String end)
 	{
 		this.start = start;
 		this.operator = operator;
