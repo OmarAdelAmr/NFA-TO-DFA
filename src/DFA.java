@@ -22,7 +22,7 @@ public class DFA
 		}
 		if (res.endsWith(","))
 		{
-			res = res.substring(0, res.length() - 2);
+			res = res.substring(0, res.length() - 1);
 		}
 		return res;
 	}
@@ -65,7 +65,7 @@ public class DFA
 		}
 		if (res.endsWith(","))
 		{
-			res = res.substring(0, res.length() - 2);
+			res = res.substring(0, res.length() - 1);
 		}
 		return res;
 	}
@@ -82,10 +82,6 @@ public class DFA
 			res += ",";
 			res += transitions.get(i).end.replaceAll("\\|", "");
 			res += "\n";
-		}
-		if (res.endsWith(", "))
-		{
-			res = res.substring(0, res.length() - 2);
 		}
 		return res;
 	}
